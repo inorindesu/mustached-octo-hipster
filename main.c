@@ -1,4 +1,11 @@
-/* gcc -std=c99 `pkg-config --libs --cflags freetype2` main.c -o ftOutlineTest*/
+/* 
+ * Copyright (C) 2013  Inori Sakura <inorindesu@gmail.com>
+ * 
+ * This work is free. You can redistribute it and/or modify it under the
+ * terms of the Do What The Fuck You Want To Public License, Version 2,
+ * as published by Sam Hocevar. See the COPYING file for more details.
+ */
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
