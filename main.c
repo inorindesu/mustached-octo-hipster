@@ -18,26 +18,26 @@ unsigned int defaultChar = 'A';
 
 int move_to(const FT_Vector* to, void* user)
 {
-  printf("MOVE_TO: (%d, %d)\n", to->x, to->y);
+  fprintf(stderr, "MOVE_TO: (%d, %d)\n", to->x, to->y);
   return 0;
 }
 
 int line_to(const FT_Vector* to, void* user)
 {
-  printf("LINE_TO: (%d, %d)\n", to->x, to->y);
+  fprintf(stderr, "LINE_TO: (%d, %d)\n", to->x, to->y);
   return 0;
 }
 
 int conic_to(const FT_Vector* ctrl, const FT_Vector* to, void* user)
 {
-  printf("CUBIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, ctrl->y, to->x, to->y);
+  fprintf(stderr, "CUBIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, ctrl->y, to->x, to->y);
   return 0;
 }
 
 int cubic_to(const FT_Vector* ctrl1, const FT_Vector* ctrl2, const FT_Vector* to,
              void* user)
 {
-  printf("CUBIC_TO: *(%d, %d)*(%d, %d) (%d, %d)\n", ctrl1->x, ctrl1->y
+  fprintf(stderr, "CUBIC_TO: *(%d, %d)*(%d, %d) (%d, %d)\n", ctrl1->x, ctrl1->y
          , ctrl2->x, ctrl2->y, to->x, to->y);
   return 0;
 }
