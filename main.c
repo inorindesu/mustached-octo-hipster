@@ -30,7 +30,7 @@ int line_to(const FT_Vector* to, void* user)
 
 int conic_to(const FT_Vector* ctrl, const FT_Vector* to, void* user)
 {
-  fprintf(stderr, "CUBIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, ctrl->y, to->x, to->y);
+  fprintf(stderr, "CONIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, ctrl->y, to->x, to->y);
   return 0;
 }
 
