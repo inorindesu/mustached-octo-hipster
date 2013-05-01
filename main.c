@@ -102,6 +102,50 @@ int cubic_to(const FT_Vector* ctrl1, const FT_Vector* ctrl2, const FT_Vector* to
   return 0;
 }
 
+unsigned int utf8_to_utf32(char* str, char** next)
+{
+  char leader = str[0];
+  unsigned int ret = 0;
+  char* nextBuf = NULL;
+
+  if ((leader & 0xF0) == 0xF0)
+    {
+      ret += (str[0] & 0x07) << 18;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[1] & 0x3F) << 12;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[2] & 0x3F) << 6;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[3] & 0x3F);
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      nextBuf = &str[4];
+    }
+  else if ((leader & 0xE0) == 0xE0)
+    {
+      ret += (str[0] & 0x0F) << 12;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[1] & 0x3F) << 6;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[2] & 0x3F);
+      nextBuf = &str[3];
+    }
+  else if ((leader & 0xC0) == 0xC0)
+    {
+      ret += (str[0] & 0x1F) << 6;
+      //fprintf(stderr, "%.8x\n", charToPlot);
+      ret += (str[1] & 0x3F);
+      nextBuf = &str[2];
+    }
+  else
+    {
+      ret = str[0];
+      nextBuf = &str[1];
+    }
+  if (next != NULL)
+    *next = nextBuf;
+  return ret;
+}
+
 int main(int argc, char** argv)
 {
   char* fontPath = NULL;
@@ -121,37 +165,7 @@ int main(int argc, char** argv)
   else
     {
       fontPath = argv[1];
-      char leader = argv[2][0];
-
-      if ((leader & 0xF0) == 0xF0)
-        {
-          charToPlot += (argv[2][0] & 0x07) << 18;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][1] & 0x3F) << 12;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][2] & 0x3F) << 6;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][3] & 0x3F);
-          //fprintf(stderr, "%.8x\n", charToPlot);
-        }
-      else if ((leader & 0xE0) == 0xE0)
-        {
-          charToPlot += (argv[2][0] & 0x0F) << 12;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][1] & 0x3F) << 6;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][2] & 0x3F);
-        }
-      else if ((leader & 0xC0) == 0xC0)
-        {
-          charToPlot += (argv[2][0] & 0x1F) << 6;
-          //fprintf(stderr, "%.8x\n", charToPlot);
-          charToPlot += (argv[2][1] & 0x3F);
-        }
-      else
-        {
-          charToPlot = argv[2][0];
-        }
+      charToPlot = utf8_to_utf32(argv[2], NULL);
       fprintf(stderr, "%.8x\n", charToPlot);
     }
   
