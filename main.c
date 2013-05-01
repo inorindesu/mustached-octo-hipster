@@ -16,96 +16,89 @@
 char defaultFont[] = "/usr/share/fonts/google-droid/DroidSans.ttf";
 unsigned int defaultChar = 'm';
 
+typedef struct VecData_
+{
+  int xLow, xHigh, yLow, yHigh;
+}VecData;
+
+void update_vector(const FT_Vector* src, VecData* data)
+{
+  if (src->x > data->xHigh)
+    data->xHigh = src->x;
+  if (src->x < data->xLow)
+    data->xLow = src->x;
+
+  if (src->y > data->yHigh)
+    data->yHigh = src->y;
+  if (src->y < data->yLow)
+    data->yLow = src->y;
+}
+
 int test_move_to(const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  fprintf(stderr, "MOVE_TO: (%d, %d)\n", to->x, to->y);
-  if (to->x > vec->x)
-    vec->x = to->x;
-  if (to->y > vec->y)
-    vec->y = to->y;
-  fprintf(stderr, "%d %d\n", vec->x, vec->y);
+  //fprintf(stderr, "MOVE_TO: (%d, %d)\n", to->x, to->y);
+  update_vector(to, (VecData*)user);
+  //fprintf(stderr, "%d %d\n", vec->x, vec->y);
   return 0;
 }
 
 int test_line_to(const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  if (to->x > vec->x)
-    vec->x = to->x;
-  if (to->y > vec->y)
-    vec->y = to->y;
-  fprintf(stderr, "%d %d\n", vec->x, vec->y);
+  update_vector(to, (VecData*)user);
+  //fprintf(stderr, "%d %d\n", vec->x, vec->y);
   return 0;
 }
 
 int test_conic_to(const FT_Vector* ctrl, const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  if (ctrl->x > vec->x)
-    vec->x = ctrl->x;
-  if (ctrl->y > vec->y)
-    vec->y = ctrl->y;
-  if (to->x > vec->x)
-    vec->x = to->x;
-  if (to->y > vec->y)
-    vec->y = to->y;
-  fprintf(stderr, "%d %d\n", vec->x, vec->y);
+  update_vector(ctrl, (VecData*)user);
+  update_vector(to, (VecData*)user);
+  //fprintf(stderr, "%d %d\n", vec->x, vec->y);
   return 0;
 }
 
 int test_cubic_to(const FT_Vector* ctrl1, const FT_Vector* ctrl2, const FT_Vector* to,
              void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  if (ctrl1->x > vec->x)
-    vec->x = ctrl1->x;
-  if (ctrl1->y > vec->y)
-    vec->y = ctrl1->y;
-  if (ctrl2->x > vec->x)
-    vec->x = ctrl2->x;
-  if (ctrl2->y > vec->y)
-    vec->y = ctrl2->y;
-  if (to->x > vec->x)
-    vec->x = to->x;
-  if (to->y > vec->y)
-    vec->y = to->y;
-  fprintf(stderr, "%d %d\n", vec->x, vec->y);
+  update_vector(ctrl1, (VecData*)user);
+  update_vector(ctrl2, (VecData*)user);
+  update_vector(to, (VecData*)user);
+  //fprintf(stderr, "%d %d\n", vec->x, vec->y);
   return 0;
 }
 
 int move_to(const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  fprintf(stderr, "MOVE_TO: (%d, %d)\n", to->x, vec->y - to->y);
-  printf(" M %d %d ", to->x, vec->y - to->y);
+  VecData* vec = (VecData*)user;
+  fprintf(stderr, "MOVE_TO: (%d, %d)\n", to->x, vec->yHigh - to->y);
+  printf(" M %d %d ", to->x, vec->yHigh - to->y);
   return 0;
 }
 
 int line_to(const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  fprintf(stderr, "LINE_TO: (%d, %d)\n", to->x, vec->y - to->y);
-  printf(" L %d %d ", to->x, vec->y - to->y);
+  VecData* vec = (VecData*)user;
+  fprintf(stderr, "LINE_TO: (%d, %d)\n", to->x, vec->yHigh - to->y);
+  printf(" L %d %d ", to->x, vec->yHigh - to->y);
   return 0;
 }
 
 int conic_to(const FT_Vector* ctrl, const FT_Vector* to, void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  fprintf(stderr, "CONIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, vec->y - ctrl->y, to->x, vec->y - to->y);
-  printf(" Q %d %d %d %d ", ctrl->x, vec->y - ctrl->y, to->x, vec->y - to->y);
+  VecData* vec = (VecData*)user;
+  fprintf(stderr, "CONIC_TO: *(%d, %d) (%d, %d)\n", ctrl->x, vec->yHigh - ctrl->y, to->x, vec->yHigh - to->y);
+  printf(" Q %d %d %d %d ", ctrl->x, vec->yHigh - ctrl->y, to->x, vec->yHigh - to->y);
   return 0;
 }
 
 int cubic_to(const FT_Vector* ctrl1, const FT_Vector* ctrl2, const FT_Vector* to,
              void* user)
 {
-  FT_Vector* vec = (FT_Vector*)user;
-  fprintf(stderr, "CUBIC_TO: *(%d, %d)*(%d, %d) (%d, %d)\n", ctrl1->x, vec->y - ctrl1->y
-         , ctrl2->x, vec->y - ctrl2->y, to->x, vec->y - to->y);
-  printf(" C %d %d %d %d ", ctrl1->x, vec->y - ctrl1->y, ctrl2->x, vec->y - ctrl2->y, to->x
-         , vec->y - to->y);
+  VecData* vec = (VecData*)user;
+  fprintf(stderr, "CUBIC_TO: *(%d, %d)*(%d, %d) (%d, %d)\n", ctrl1->x, vec->yHigh - ctrl1->y
+         , ctrl2->x, vec->yHigh - ctrl2->y, to->x, vec->yHigh - to->y);
+  printf(" C %d %d %d %d ", ctrl1->x, vec->yHigh - ctrl1->y, ctrl2->x, vec->yHigh - ctrl2->y, to->x
+         , vec->yHigh - to->y);
   return 0;
 }
 
@@ -221,9 +214,11 @@ int main(int argc, char** argv)
       exit(1);
     }
 
-  FT_Vector vec;
-  vec.x = 0;
-  vec.y = 0;
+  VecData vec;
+  vec.xHigh = 0;
+  vec.xLow = 0;
+  vec.yHigh = 0;
+  vec.yLow = 0;
 
   FT_Outline_Funcs testFuncs;
   testFuncs.shift = 0;
@@ -243,13 +238,13 @@ int main(int argc, char** argv)
 
   fprintf(stderr, "Testing height..\n");
   FT_Outline_Decompose(&face->glyph->outline, &testFuncs, &vec);
-  fprintf(stderr, "Highest x is: %d\nHighest y is: %d\n", vec.x, vec.y);
+  fprintf(stderr, "xHigh: %d, yHigh: %d, xLow: %d, yLow: %d\n", vec.xHigh, vec.yHigh, vec.xLow, vec.yLow);
 
   fprintf(stderr, "Generating data..\n");
   /* coordinates are in 26.6 format. */
   printf("<?xml version=\"1.0\" standalone=\"no\"?>\n");
   printf("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"%f\" height=\"%f\">\n"
-         , vec.x / 64.0, vec.y / 64.0);
+         , (vec.xHigh - vec.xLow) / 64.0, (vec.yHigh - vec.yLow) / 64.0);
   printf("<path transform=\"scale(%f)\" d =\"", 1 / 64.0);
   FT_Outline_Decompose(&face->glyph->outline, &drawFuncs, &vec);
   printf("\" id=\"char_%.8x\">\n", charToPlot);
